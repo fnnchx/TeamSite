@@ -8,8 +8,8 @@ import { createPostCard } from './post-card.js';
 export async function createPostsPage() {
     const container = createTag('div', { className: 'page-container posts-page' });
     const currentUser = StorageService.getCurrentUser();
-    const userInfo = currentUser ?  пользователя: ${currentUser.name} : '';
-    const title = createTag('h1', { className: 'page-title' }, 📄 Посты${userInfo});
+    const userInfo = currentUser ? ` для пользователя: ${currentUser.name}` : ''; // Fixed: added backticks
+    const title = createTag('h1', { className: 'page-title' }, `📄 Посты${userInfo}`); // Fixed: added backticks and quotes
     const searchContainer = createSearchInput((searchTerm) => filterPosts(searchTerm), '🔍 Поиск по заголовку или содержимому...', 300);
     const postsList = createTag('div', { className: 'posts-list' });
     
