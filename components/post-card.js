@@ -18,3 +18,4 @@ export function createPostCard(post, options = {}) {
     postCard.appendChild(postActions);
     return postCard;
 }
+
