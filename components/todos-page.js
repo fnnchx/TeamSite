@@ -8,8 +8,8 @@ import { createTodoItem } from './todo-item.js';
 export async function createTodosPage() {
     const container = createTag('div', { className: 'page-container todos-page' });
     const currentUser = StorageService.getCurrentUser();
-    const userInfo = currentUser ?  для пользователя: ${currentUser.name} : '';
-    const title = createTag('h1', { className: 'page-title' }, 📝 Задачи${userInfo});
+    const userInfo = currentUser ? ` для пользователя: ${currentUser.name}` : ''; // Fixed: added backticks
+    const title = createTag('h1', { className: 'page-title' }, `📝 Задачи${userInfo}`); // Fixed: added backticks
     const searchContainer = createSearchInput((searchTerm) => filterTodos(searchTerm), '🔍 Поиск по названию задачи...', 300);
     const addTodoBtn = createTag('button', { className: 'btn btn-success add-todo-btn', onclick: showAddTodoForm }, '+ Добавить задачу');
     const actionsContainer = createTag('div', { className: 'page-actions' });
@@ -54,12 +54,13 @@ export async function createTodosPage() {
             todosList.appendChild(emptyState);
             return;
         }
+        
         const completedTodos = todos.filter(todo => todo.completed);
         const activeTodos = todos.filter(todo => !todo.completed);
         
         if (activeTodos.length > 0) {
             const activeSection = createTag('div', { className: 'todos-section' });
-            activeSection.appendChild(createTag('h3', {}, Активные (${activeTodos.length})));
+            activeSection.appendChild(createTag('h3', {}, `Активные (${activeTodos.length})`)); // Fixed: added backticks
             activeTodos.forEach(todo => {
                 const todoElement = createTodoItem(todo, { onToggle: () => toggleTodo(todo.id), onDelete: () => deleteTodo(todo.id) });
                 activeSection.appendChild(todoElement);
@@ -69,7 +70,7 @@ export async function createTodosPage() {
         
         if (completedTodos.length > 0) {
             const completedSection = createTag('div', { className: 'todos-section' });
-            completedSection.appendChild(createTag('h3', {}, Выполненные (${completedTodos.length})));
+            completedSection.appendChild(createTag('h3', {}, `Выполненные (${completedTodos.length})`)); // Fixed: added backticks
             completedTodos.forEach(todo => {
                 const todoElement = createTodoItem(todo, { onToggle: () => toggleTodo(todo.id), onDelete: () => deleteTodo(todo.id) });
                 completedSection.appendChild(todoElement);
@@ -79,7 +80,7 @@ export async function createTodosPage() {
     }
     
     function toggleTodo(todoId) {
-const todo = allTodos.find(t => t.id === todoId);
+        const todo = allTodos.find(t => t.id === todoId);
         if (todo && todo.isLocal) {
             todo.completed = !todo.completed;
             StorageService.saveTodo(todo);
@@ -100,24 +101,66 @@ const todo = allTodos.find(t => t.id === todoId);
             alert('Пожалуйста, выберите пользователя сначала');
             return;
         }
+        
         const overlay = createTag('div', { className: 'modal-overlay' });
         const form = createTag('div', { className: 'add-form' });
-        const titleInput = createTag('input', { type: 'text', placeholder: 'Название задачи', className: 'form-input' });
-        const saveBtn = createTag('button', { className: 'btn btn-success', onclick: () => {
+        const titleInput = createTag('input', { 
+            type: 'text', 
+            placeholder: 'Название задачи', 
+            className: 'form-input' 
+        });
+        
+        const formActions = createTag('div', { className: 'form-actions' });
+        const saveBtn = createTag('button', { 
+            className: 'btn btn-success', 
+            onclick: handleSaveTodo 
+        }, '💾 Сохранить');
+        
+        const cancelBtn = createTag('button', { 
+            className: 'btn btn-secondary', 
+            onclick: () => overlay.remove() 
+        }, '❌ Отмена');
+        
+        formActions.appendChild(saveBtn);
+        formActions.appendChild(cancelBtn);
+        
+        form.appendChild(createTag('h3', {}, 'Новая задача'));
+        form.appendChild(titleInput);
+        form.appendChild(formActions);
+        overlay.appendChild(form);
+        container.appendChild(overlay);
+        
+        function handleSaveTodo() {
             const title = titleInput.value.trim();
             if (title) {
-                const newTodo = StorageService.saveTodo({ userId: currentUser.id, title: title, completed: false });
+                const newTodo = StorageService.saveTodo({ 
+                    userId: currentUser.id, 
+                    title: title, 
+                    completed: false,
+                    isLocal: true 
+                });
                 allTodos.push(newTodo);
                 renderTodos(allTodos);
                 overlay.remove();
+            } else {
+                alert('Пожалуйста, введите название задачи');
+                titleInput.focus();
             }
-        }}, '💾 Сохранить');
-        const cancelBtn = createTag('button', { className: 'btn btn-secondary', onclick: () => overlay.remove() }, '❌ Отмена');
-        form.appendChild(createTag('h3', {}, 'Новая задача'));
-        form.appendChild(titleInput);
-        form.appendChild(createTag('div', { className: 'form-actions' }, [saveBtn, cancelBtn]));
-        overlay.appendChild(form);
-        container.appendChild(overlay);
+        }
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+            }
+        });
+        
+        document.addEventListener('keydown', function handleEscape(e) {
+            if (e.key === 'Escape') {
+                overlay.remove();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        });
+        
         setTimeout(() => titleInput.focus(), 100);
     }
     
