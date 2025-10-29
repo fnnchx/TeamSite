@@ -7,8 +7,8 @@ import { createLoading, createError } from './loading.js';
 export async function createCommentsPage() {
     const container = createTag('div', { className: 'page-container comments-page' });
     const currentPost = StorageService.getCurrentPost();
-    const postInfo = currentPost ?  к посту: "${currentPost.title.substring(0, 50)}..." : '';
-    const title = createTag('h1', { className: 'page-title' }, 💬 Комментарии${postInfo});
+    const postInfo = currentPost ? `к посту: "${currentPost.title.substring(0, 50)}..."` : "";
+    const title = createTag('h1', { className: 'page-title' }, `💬 Комментарии ${postInfo}`);
     const searchContainer = createSearchInput((searchTerm) => filterComments(searchTerm), '🔍 Поиск по имени или содержимому комментария...', 300);
     const commentsList = createTag('div', { className: 'comments-list' });
     
@@ -33,8 +33,8 @@ export async function createCommentsPage() {
             return;
         }
         const filtered = allComments.filter(comment => 
-            comment.name.toLowerCase().includes(searchTerm.toLowerCase()) 
-            comment.body.toLowerCase().includes(searchTerm.toLowerCase()) 
+            comment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            comment.body.toLowerCase().includes(searchTerm.toLowerCase()) ||
             comment.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
         renderComments(filtered);
