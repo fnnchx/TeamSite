@@ -7,7 +7,7 @@ export function createPostCard(post, options = {}) {
     const postBody = createTag('p', { className: 'post-body' }, post.body);
     const postMeta = createTag('div', { className: 'post-meta' });
     if (post.userId) {
-        postMeta.appendChild(createTag('span', { className: 'post-user' }, 👤 User ID: ${post.userId}));
+        postMeta.appendChild(createTag('span', { className: 'post-user' }, "👤 User ID: ${post.userId}"));
     }
     const postActions = createTag('div', { className: 'post-actions' });
     const commentsBtn = createTag('button', { className: 'btn btn-primary', onclick: onShowComments, title: 'Показать комментарии' }, '💬 Комментарии');
